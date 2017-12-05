@@ -20,3 +20,5 @@ deploy:
   on:
     branch: master
 
+after_deploy:
+  script: ssh bkeenan@dev.dead-drop.me 'sudo systemctl restart dead'
