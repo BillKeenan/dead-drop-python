@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 scp $1/wsgi.py bkeenan@dev.dead-drop.me:~/dead
 scp $1/dead.py bkeenan@dev.dead-drop.me:~/dead
