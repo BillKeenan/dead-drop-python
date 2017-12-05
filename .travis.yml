@@ -1,5 +1,5 @@
 before_install:
-- openssl aes-256-cbc -K $encrypted_bacf8c57c100_key -iv $encrypted_bacf8c57c100_iv
+- openssl aes-256-cbc -k $encrypted_bacf8c57c100_key -iv $encrypted_bacf8c57c100_iv
   -in deploy_rsa.enc -out /tmp/deploy_rsa -d
   - eval "$(ssh-agent -s)"
   - chmod 600 /tmp/deploy_rsa
