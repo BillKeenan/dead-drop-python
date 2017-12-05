@@ -16,7 +16,7 @@ before_deploy:
 deploy:
   provider: script
   skip_cleanup: true
-  script: scp $TRAVIS_BUILD_DIR bkeenan@dev.dead-drop.me:~/$TRAVIS_BUILD_ID;
+  script: scp -r $TRAVIS_BUILD_DIR bkeenan@dev.dead-drop.me:~/$TRAVIS_BUILD_ID;
   on:
     branch: master
 
