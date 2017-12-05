@@ -1,4 +1,4 @@
-from dead import app
+from deadWeb.dead import app
 
 if __name__ == "__main__":
     app.run()
