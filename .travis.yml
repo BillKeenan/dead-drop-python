@@ -17,8 +17,11 @@ deploy:
   provider: script
   skip_cleanup: true
   script: scp $TRAVIS_BUILD_DIR/wsgi.py bkeenan@dev.dead-drop.me:~/dead;
+  provider: script
   script: scp $TRAVIS_BUILD_DIR/dead.py bkeenan@dev.dead-drop.me:~/dead;
+  provider: script
   script: scp -r $TRAVIS_BUILD_DIR/deadweb bkeenan@dev.dead-drop.me:~/dead;
+  provider: script
   script: ssh bkeenan@dev.dead-drop.me 'sudo systemctl restart dead'
   on:
     branch: master
