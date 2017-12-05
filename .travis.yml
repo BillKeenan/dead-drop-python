@@ -1,3 +1,4 @@
+language: python
 addons:
   ssh_known_hosts: dev.dead-drop.me
   
