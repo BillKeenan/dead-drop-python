@@ -70,7 +70,7 @@ include_once("./class/storage.php");
 </head>
 
 <body>
-<input type="hidden" id="formKey" value="<?php print( Storage::timedKey()); ?>">
+<input type="hidden" id="formKey" value="{{ timedKey }}">
     <div class="container theme-showcase">
 
 <!-- Main jumbotron for a primary marketing message or call to action -->
