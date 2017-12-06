@@ -105,7 +105,7 @@ function getDrop(){
     }
 
     $.ajax({
-        url: '/getdrop.php?id='+dropid,
+        url: '/drop/'+dropid,
         success: function (data) {
             if (data == null){
                 alert('no drop found');

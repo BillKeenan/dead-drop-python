@@ -1,10 +1,10 @@
-from flask import Flask, render_template, send_from_directory, request
+from flask import Flask, render_template, send_from_directory, request, Response 
 from jinja2 import Template
 from flask import jsonify
 from pymongo import MongoClient
-import uuid
+import uniqid
 from datetime import datetime
-
+from pprint import pprint
 import os
 app = Flask(__name__)
 
@@ -28,14 +28,9 @@ def send_css(path):
 
 @app.route("/drop",methods = ['POST'])
 def drop():
-
-
-
-
-
     #ok, looks alright
     data = request.form["data"];
-    key = request.form["key"];
+    key = uniqid.uniqid()
 
 # //data should look as expected, and parse as data
 # $jsonData = json_decode($data);
@@ -56,12 +51,24 @@ def drop():
     client = MongoClient()
     db = client.dead
     db.drop.insert_one({ "key" :key, "data":data})
-    return jsonify(id=1234)
+    return jsonify(id=key)
 
 @app.route("/pickup/<id>")
-def pickupDrop(id):
+
+def pickupDropIndex(id):
     ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
     return render_template('index.htm',id=id)
+
+
+@app.route("/getdrop.php?id=<id>")
+@app.route("/drop/<id>")
+def picupDropJSON(id):
+    client = MongoClient()
+    db = client.dead
+    cursor = db.drop.find({ "key" :id})
+    for document in cursor:
+    	return  Response(document['data'], mimetype='application/json')
+    	break
 
 
 
@@ -70,7 +77,7 @@ if __name__ == "__main__":
 
 
 def get_timed_key():
-    id = uuid.uuid4();
+    id = uniqid.uniqid()
     client = MongoClient()
     db = client.dead
     db.formKeys.insert_one({"key": id,"created": datetime.now()})
