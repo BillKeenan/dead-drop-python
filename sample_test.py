@@ -3,7 +3,7 @@ from deadWeb.dead import test, drop_handler
 import pprint
 
 @patch('pymongo.MongoClient')
-def insert(mock_pymongo):
+def test_insert(mock_pymongo):
   
   dead = drop_handler(mock_pymongo)
   data = {"test":"here"}
