@@ -1,5 +1,5 @@
 from unittest.mock import patch, ANY
-from deadWeb.dead import test, drop_handler
+from deadWeb.dead import  drop_handler
 import pprint
 
 @patch('pymongo.MongoClient')

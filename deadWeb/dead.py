@@ -7,11 +7,6 @@ from datetime import datetime
 from pprint import pprint
 import os
 
-app = Flask(__name__)
-
-class test:
-  def testmongo(mongo):
-    mongo.dead.insert_one({"key": 4,"created":"xxx"})
 
 class drop_handler:
 
@@ -44,6 +39,8 @@ class drop_handler:
 
 
 handler = drop_handler(MongoClient())
+
+app = Flask(__name__)
 
 @app.route("/")
 def index():
