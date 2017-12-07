@@ -6,12 +6,48 @@ import uniqid
 from datetime import datetime
 from pprint import pprint
 import os
+
 app = Flask(__name__)
+
+class test:
+  def testmongo(mongo):
+    mongo.dead.insert_one({"key": 4,"created": datetime.now()})
+
+class drop_handler:
+
+  client = None
+
+  def __init__(self, db):
+    self.client = db.dead
+    pass
+
+  def get_timed_key(self):
+      id = uniqid.uniqid()
+      
+      self.client.formKeys.insert_one({"key": id,"created": datetime.now()})
+      return id
+
+  def pickup(self,id):
+    cursor = self.client.drop.find({ "key" :id})
+    for document in cursor:
+      return document['data']
+      break
+    return None
+
+  def drop(self,data):
+    key = uniqid.uniqid()
+    self.client.drop.insert_one({ "key" :key, "data":data})
+
+    return key
+
+
+
+handler = drop_handler(MongoClient())
 
 @app.route("/")
 def index():
     ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
-    return render_template('index.htm',timedKey=get_timed_key())
+    return render_template('index.htm',timedKey= handler.get_timed_key())
 
 @app.route('/images/<path:path>')
 def send_images(path):
@@ -29,28 +65,7 @@ def send_css(path):
 @app.route("/drop",methods = ['POST'])
 def drop():
     #ok, looks alright
-    data = request.form["data"];
-    key = uniqid.uniqid()
-
-# //data should look as expected, and parse as data
-# $jsonData = json_decode($data);
-
-# $keysToCheck = ["iv","v","iter","ks","ts","mode","adata","cipher","salt","ct"];
-
-# //verify our various keys
-# foreach($keysToCheck as $key=>$value){
-#     if (! property_exists($jsonData,$value)){
-#         header('HTTP/1.1 500 Internal Server Error');
-#         print("data missing:".$value);
-#         exit;
-#     }
-# }
-
-
-
-    client = MongoClient()
-    db = client.dead
-    db.drop.insert_one({ "key" :key, "data":data})
+    key = handler.drop(request.form["data"])
     return jsonify(id=key)
 
 @app.route("/pickup/<id>")
@@ -63,22 +78,11 @@ def pickupDropIndex(id):
 @app.route("/getdrop.php?id=<id>")
 @app.route("/drop/<id>")
 def picupDropJSON(id):
-    client = MongoClient()
-    db = client.dead
-    cursor = db.drop.find({ "key" :id})
-    for document in cursor:
-    	return  Response(document['data'], mimetype='application/json')
-    	break
+  returnData = handler.pickup(id)
+  return  Response(returnData,mimetype='application/json')
 
 
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0')
 
-
-def get_timed_key():
-    id = uniqid.uniqid()
-    client = MongoClient()
-    db = client.dead
-    db.formKeys.insert_one({"key": id,"created": datetime.now()})
-    return id
