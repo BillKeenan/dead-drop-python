@@ -7,7 +7,7 @@ def test_dead(mock_pymongo):
   dead = drop_handler(mock_pymongo)
   data = {"test":"here"}
   dead.drop(data)
-  pprint.pprint (mock_pymongo.dead.drop.insert_one.assert_called_with({"key": ANY, "data":data}))
+  mock_pymongo.dead.drop.insert_one.assert_called_with({"key": ANY, "data":data})
 
 
 @patch('pymongo.MongoClient')
@@ -19,5 +19,13 @@ def test_drop_deleted_when_accessed(mock_pymongo):
   val = dead.pickup(key)
   
   assert val == "test data return"
-  pprint.pprint (mock_pymongo.dead.drop.find.assert_called_with({"key": key}))
-  pprint.pprint (mock_pymongo.dead.drop.remove.assert_called_with({"key": key}))
+  mock_pymongo.dead.drop.find.assert_called_with({"key": key})
+  mock_pymongo.dead.drop.remove.assert_called_with({"key": key})
+
+
+
+@patch('pymongo.MongoClient')
+def test_timed_key_is_saved(mock_pymongo):
+  dead = drop_handler(mock_pymongo)
+  timed_key = dead.get_timed_key()
+  mock_pymongo.dead.formKeys.insert_one.assert_called_with({"key": timed_key,"created": ANY})
