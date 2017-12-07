@@ -29,15 +29,16 @@ class drop_handler:
 
   def pickup(self,id):
     cursor = self.client.drop.find({ "key" :id})
+    tmpData = None
     for document in cursor:
-      return document['data']
+      tmp = document['data']
       break
-    return None
+    cursor = self.client.drop.remove({ "key" :id})
+    return tmp
 
   def drop(self,data):
     key = uniqid.uniqid()
     self.client.drop.insert_one({ "key" :key, "data":data})
-
     return key
 
 
