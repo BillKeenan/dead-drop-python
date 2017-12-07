@@ -11,7 +11,7 @@ app = Flask(__name__)
 
 class test:
   def testmongo(mongo):
-    mongo.dead.insert_one({"key": 4,"created": datetime.now()})
+    mongo.dead.insert_one({"key": 4,"created":"xxx"})
 
 class drop_handler:
 
