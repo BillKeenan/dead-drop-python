@@ -1,6 +1,7 @@
 #!/bin/bash
 
 scp $1/wsgi.py bkeenan@dev.dead-drop.me:~/dead
+ssh bkeenan@dev.dead-drop.me 'mkdir ~/dead/config/'
 scp $1/config/prod.py bkeenan@dev.dead-drop.me:~/dead/config/main.py
 scp $1/requirements.txt bkeenan@dev.dead-drop.me:~/dead
 scp -r $1/deadWeb bkeenan@dev.dead-drop.me:~/dead
