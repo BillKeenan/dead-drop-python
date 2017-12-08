@@ -24,12 +24,12 @@ class drop_handler:
 
   def pickup(self,id):
     cursor = self.client.drop.find({ "key" :id})
-    tmpData = None
+    tmpData = "{}"
     for document in cursor:
-      tmp = document['data']
+      tmpData = document['data']
+      cursor = self.client.drop.remove({ "key" :id})
       break
-    cursor = self.client.drop.remove({ "key" :id})
-    return tmp
+    return tmpData
 
   def drop(self,data):
     key = uniqid.uniqid()

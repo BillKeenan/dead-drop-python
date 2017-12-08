@@ -24,6 +24,21 @@ def test_drop_deleted_when_accessed(mock_pymongo):
 
 
 
+
+
+@patch('pymongo.MongoClient')
+def test_return_none_when_not_existing(mock_pymongo):
+
+  key = "anything"
+  mock_pymongo.dead.drop.find.return_value=[]
+  dead = drop_handler(mock_pymongo)
+  val = dead.pickup(key)
+  
+  assert val == "{}"
+  mock_pymongo.dead.drop.find.assert_called_with({"key": key})
+  mock_pymongo.dead.drop.remove.assert_not_called()
+
+
 @patch('pymongo.MongoClient')
 def test_timed_key_is_saved(mock_pymongo):
   dead = drop_handler(mock_pymongo)
