@@ -194,6 +194,14 @@ textarea.input-lg { padding: 24px; }
     background: #e4e4e4;
 }
 
+#decrypted{
+    font-family: "Courier New", Courier, monospace;
+}
+
+#message{
+    font-family: "Courier New", Courier, monospace;
+}
+
  .collapse{display:none}
  .collapse.in{display:block}
  .collapsing{position:relative;height:0;overflow:hidden;-webkit-transition:height .35s ease;transition:height .35s ease}
