@@ -6,22 +6,136 @@
 
 var pw;
 var root;
+var domain;
 
-function symmetricEncrypt() {
+
+function setDrop() {
+
     "use strict";
-    pw = makeid();
-    var crypt = sjcl.encrypt(pw, $('#message').val());
-    var id = $("#formKey").val();
-    drop(crypt,id);
-    $("#password").val(pw);
 
-    $('html,body').animate({
-            scrollTop: $("#password").offset().top},
-        'slow');
+    var text = symmetricEncrypt();
+
+    $.post("/drop", { data: text }, function (data) {
+
+        $("#MakeDrop").hide(300, function () {
+            var id = data.id;
+            var url = buildUrl(id);
+
+            $("#url").text(url);
+
+            $('#pickuplink').attr("href", url);
+
+            $("#pass").text(pw);
+            $("#DropComplete").show(200);
+
+        }
+        );
+
+    }).fail(function () {
+
+        alert("Something went wrong. Unable to create drop.");
+
+    });
+
+    
+
 }
 
-function symmetricDecrypt (data) {
-    try{
+
+function getDrop() {
+
+    if (typeof dropid == 'undefined') {
+        alert('no drop found');
+        window.location.assign("/");
+    }
+
+    $.ajax({
+        url: '/drop/'+dropid,
+        success: function (data) {
+
+            if (data == null) {
+                alert('no drop found');
+                window.location.assign("/");
+                return false;
+            }
+
+            var plainText = symmetricDecrypt(JSON.stringify(data));
+            $("#decrypted").text(plainText);
+
+            $("#RetrieveDrop").hide(300, function () {
+                $("#DisplayDrop").show(300);
+            });
+        }
+
+    }).fail(function () {
+
+        alert("Something went wrong. Unable to get drop.");
+
+    });
+}
+
+
+function makePwd() {
+    "use strict";
+
+    //get a good seed
+    sjcl.random.startCollectors();
+
+    for (var i = 0; i < 5; i++) {
+        //throw away a couple
+        sjcl.random.randomWords(1);
+    }
+
+    var m = new MersenneTwister(sjcl.random.randomWords(1));
+    sjcl.random.stopCollectors();
+
+    var text = "";
+    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+    for (var i = 0; i < 15; i++) {
+        text += possible.charAt(Math.floor(m.random() * possible.length));
+    }
+
+    return text;
+}
+
+
+function buildUrl(id) {
+    host = getHost()
+    var final = host.concat("/pickup/");
+    var final = final.concat(id);
+    return final;
+}
+
+function getHost(){
+    "use strict";
+    var http = location.protocol;
+    var slashes = http.concat("//");
+    var host = slashes.concat(window.location.hostname);
+    if (window.location.port != "") {
+       host = host.concat(":").concat(window.location.port);
+    }
+
+    return host
+}
+
+
+function symmetricEncrypt() {
+    try {
+        "use strict";
+        pw = makePwd();
+        var crypt = sjcl.encrypt(pw, $('#message').val());
+
+        return crypt;
+    } catch (err) {
+        alert('Error encrypting data');
+        return false;
+    }
+}
+
+
+function symmetricDecrypt(data) {
+    try {
         "use strict";
         var pw = $("#password").val();
         //trim it
@@ -29,115 +143,14 @@ function symmetricDecrypt (data) {
 
         return sjcl.decrypt(pw, data);
 
-    }catch(err){
-        alert('Seems the password didn\'t work, ask for the information to be sent again');
-        window.location.assign(root);
+    } catch (err) {
+        alert('Error decrypting data');
+        window.location.assign("/");
         return false;
     }
 }
 
 
-
-mail = function(){
-    var subject = "I've Sent you a Dead Drop";
-    var body = encodeURIComponent($("#finalData").text());
-    window.open('mailto:nobody@nowhere.blah?subject='+subject+'&body='+body, '_Blank')
-}
-
-function drop (cryptData,id) {
-    "use strict";
-    $.post( "/drop",{data:cryptData,key:id}, function(data) {
-        $(".plain").hide(300,function(){
-            var id = data.id;
-                var url = buildUrl(id);
-            $("#url").text (url);
-
-                //if we're tor, give a plaintext as well
-                if (url.indexOf('onion')>0 ){
-                    //show plaintext as well
-                    $("#plainUrl").text('http://dead-drop.me/'+id);
-                }else{
-                    $("#plainUrlText").remove();
-                }
-
-            $("#pass").text(pw);
-            $(".dropComplete").show(200);
-        }
-        );
-
-
-    }).fail(function() {
-            alert( "Something went wrong, perhaps you waited to long, refresh and try again" );
-        });
-}
-function makeid()
-{
-    "use strict";
-
-    //get a good seed, default seed is awful datetime.now
-    sjcl.random.startCollectors();
-
-    for (var i=0;i<5;i++) {
-        //throw away a couple
-        sjcl.random.randomWords(1);
-    }
-
-
-    var m = new MersenneTwister(sjcl.random.randomWords(1));
-    sjcl.random.stopCollectors();
-
-
-    var text = "";
-    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-
-    for ( var i =0; i < 15; i++ ){
-        text += possible.charAt(Math.floor(m.random() * possible.length));
-    }
-
-    return text;
-}
-
-function getDrop(){
-
-    if (typeof dropid == 'undefined' ){
-        alert('no drop found');
-        window.location.assign(root);
-    }
-
-    $.ajax({
-        url: '/drop/'+dropid,
-        success: function (data) {
-            if (data == null){
-                alert('no drop found');
-                window.location.assign(root);
-                return false;
-            }
-            var plainText  = symmetricDecrypt( JSON.stringify(data));
-            $("#decrypted").text(plainText);
-
-            $(".encrypted").hide(300,function(){
-                $(".final").show(300);
-            });
-        },
-        error: function () {
-            throw new Error("Could not load script " + script);
-        }
-    });
-}
-
-function buildUrl(id){
-    "use strict";
-    var http = location.protocol;
-    var slashes = http.concat("//");
-    var host = slashes.concat(window.location.hostname);
-    if (window.location.port != ""){
-        host = host.concat(":").concat(window.location.port);
-    }
-    var final = host.concat("/pickup/");
-    var final = final.concat(id);
-    return final;
-
-}
 
 function require(script) {
     "use strict";
@@ -154,27 +167,23 @@ function require(script) {
     });
 }
 
-$(document).ready(function(){
+
+$(document).ready(function () {
     var http = location.protocol;
     var slashes = http.concat("//");
     root = "/";
 
-
-
-    if (typeof dropid != 'undefined' ){
+    if (typeof dropid != 'undefined') {
         //this is a pickup, show the password dialog
-        $(".plain").hide();
-        $(".encrypted").show();
-
-        //hide the banner
-        $('#masthead').hide()
-    }else{
-        $(".plain").show();
+        $("#MakeDrop").hide();
+        $("#RetrieveDrop").show();
+    } else {
+        $("#MakeDrop").show();
         $("#message").focus();
-
     }
 
     if (top != self) {
-        top.location.assign(root);
+        top.location.assign("/");
     }
+
 });

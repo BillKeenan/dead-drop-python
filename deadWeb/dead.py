@@ -45,7 +45,7 @@ app = Flask(__name__)
 @app.route("/")
 def index():
     ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
-    return render_template('index.htm',timedKey= handler.get_timed_key())
+    return render_template('index2.htm',timedKey= handler.get_timed_key())
 
 @app.route('/images/<path:path>')
 def send_images(path):
@@ -70,7 +70,7 @@ def drop():
 
 def pickupDropIndex(id):
     ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
-    return render_template('index.htm',id=id)
+    return render_template('index2.htm',id=id)
 
 
 @app.route("/getdrop.php?id=<id>")

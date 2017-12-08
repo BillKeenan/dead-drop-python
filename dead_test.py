@@ -23,9 +23,6 @@ def test_drop_deleted_when_accessed(mock_pymongo):
   mock_pymongo.dead.drop.remove.assert_called_with({"key": key})
 
 
-
-
-
 @patch('pymongo.MongoClient')
 def test_return_none_when_not_existing(mock_pymongo):
 
