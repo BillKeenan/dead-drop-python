@@ -93,7 +93,7 @@
                     </div>
                     
                 </div>
-                <button type="button" class="btn btn-lg btn-primary" onclick="window.location.assign(baseurl)">Make another  Drop</button>
+                <button type="button" class="btn btn-lg btn-primary" onclick="window.location.assign(getHost())">Make another  Drop</button>
             </div>
             <!-- end drop complete -->
 
@@ -187,10 +187,15 @@
     <!-- Latest compiled and minified JavaScript -->
     <script src="/js/bootstrap.min.js"></script>
     <script src="/js/sjcl.js"></script>
-    <script src="/js/deaddrop.js?cacheBreak=<?php echo (time());?>"></script>
+    <script>
+      var s = document.createElement('script');
+
+      var src = "/js/deaddrop.js?cacheBreak="+Math.floor((Math.random() * 1000000) + 1);
+      s.setAttribute('src',src);
+      document.body.appendChild( s );
+    </script>
+    
     <script src="/js/merseen.js"></script>
-    <!-- local all hosted version
-    <script type="text/javascript" src="https://labs.rkd.ca/deaddrop/min/?f=assets/js/jquery.js,js/deaddrop.js,dist/js/bootstrap.min.js,assets/js/holder.js,js/sjcl.js,js/merseen.js&456&1"></script>
 -->
 
 </body>
