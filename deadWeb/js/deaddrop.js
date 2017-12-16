@@ -34,7 +34,7 @@ function setDrop() {
     }).fail(function () {
 
         alert("Something went wrong. Unable to create drop.");
-
+        window.location.assign(getHost());
     });
 
     
@@ -70,7 +70,8 @@ function getDrop() {
     }).fail(function () {
 
         alert("Something went wrong. Unable to get drop.");
-
+        window.location.assign(getHost());
+        
     });
 }
 

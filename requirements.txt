@@ -6,3 +6,4 @@ uniqid==0.0.1
 pytest-mock==1.6.3
 mock==2.0.0
 pytest-cov==2.5.1
+freezegun==0.3.9

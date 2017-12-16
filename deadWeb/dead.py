@@ -24,16 +24,30 @@ class drop_handler:
 
   def pickup(self,id):
     cursor = self.client.drop.find({ "key" :id})
-    tmpData = "{}"
+    tmpData = []
     for document in cursor:
-      tmpData = document['data']
+      tmpData = document
       cursor = self.client.drop.remove({ "key" :id})
       break
-    return tmpData
+    
+    if (tmpData):
+
+        #handle old drops without createdDate
+        if "createdDate" in tmpData:
+            # Do not return drops > 24 hours old
+            timeDelta = datetime.now()  - tmpData["createdDate"]
+
+            if timeDelta.days > 1 :
+                print("too old, retunring None")
+                return []
+
+        return tmpData["data"]
+
+    return []
 
   def drop(self,data):
     key = uniqid.uniqid()
-    self.client.drop.insert_one({ "key" :key, "data":data})
+    self.client.drop.insert_one({ "key" :key, "data":data,"createdDate":datetime.now()})
     return key
 
 
@@ -67,7 +81,6 @@ def drop():
     return jsonify(id=key)
 
 @app.route("/pickup/<id>")
-
 def pickupDropIndex(id):
     ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
     return render_template('index.htm',id=id)
