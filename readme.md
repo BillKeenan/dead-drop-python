@@ -15,7 +15,15 @@ There is a sample Apache configuration, as well as a vagrant test environemnt.
 ==========
 
 
-### NEEDS DEV INSTRUCTIONS
+# DEV INSTRUCTIONS
+
+** untested **
+
+1. install mongodb
+2. install python3
+3. install/activate virtualenv
+4. pip install -r requirements.txt
+5. python wsgi.py
 
 
 This code is free to use as per the license, it would be polite to put a link to dead-drop.me in the footer however.
