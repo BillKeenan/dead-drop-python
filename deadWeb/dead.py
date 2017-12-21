@@ -76,24 +76,19 @@ def send_css(path):
 
 @app.route("/drop",methods = ['POST'])
 def drop():
-    #ok, looks alright
+    """ok, looks alright"""
     key = handler.drop(request.form["data"])
     return jsonify(id=key)
 
 @app.route("/pickup/<id>")
-def pickupDropIndex(id):
-    ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
-    return render_template('index.htm',id=id)
+def pickup_drop_index(drop_id):
+    """Load the pickup HTML"""
+    return render_template('index.htm', id=drop_id)
 
 
 @app.route("/getdrop.php?id=<id>")
 @app.route("/drop/<id>")
-def picupDropJSON(id):
-  returnData = handler.pickup(id)
-  return  Response(returnData,mimetype='application/json')
-
-
-
-if __name__ == "__main__":
-    app.run(host='0.0.0.0')
-
+def pickup_drop_json(drop_id):
+    """Actually get the drop from the DB"""
+    return_data = handler.pickup(drop_id)
+    return  Response(return_data, mimetype='application/json')
