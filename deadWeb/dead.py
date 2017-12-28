@@ -80,14 +80,14 @@ def drop():
     key = handler.drop(request.form["data"])
     return jsonify(id=key)
 
-@app.route("/pickup/<id>")
+@app.route("/pickup/<drop_id>")
 def pickup_drop_index(drop_id):
     """Load the pickup HTML"""
     return render_template('index.htm', id=drop_id)
 
 
-@app.route("/getdrop.php?id=<id>")
-@app.route("/drop/<id>")
+@app.route("/getdrop.php?id=<drop_id>")
+@app.route("/drop/<drop_id>")
 def pickup_drop_json(drop_id):
     """Actually get the drop from the DB"""
     return_data = handler.pickup(drop_id)
