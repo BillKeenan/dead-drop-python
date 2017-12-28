@@ -1,80 +1,80 @@
-from flask import Flask, render_template, send_from_directory, request, Response 
-from jinja2 import Template
-from flask import jsonify
+from datetime import datetime
+import os
+from flask import Flask, render_template, send_from_directory, request, Response, jsonify
 from pymongo import MongoClient
 import uniqid
-from datetime import datetime
-from pprint import pprint
-import os
 
 
-class drop_handler:
+class DropHandler:
 
-  client = None
+    client = None
 
-  def __init__(self, db):
-    self.client = db.dead
-    pass
+    def __init__(self, db):
+        self.client = db.dead
+        pass
 
-  def get_timed_key(self):
-      id = uniqid.uniqid()
-      
-      self.client.formKeys.insert_one({"key": id,"created": datetime.now()})
-      return id
+    def get_timed_key(self):
+        drop_id = uniqid.uniqid()
+        
+        self.client.formKeys.insert_one({"key": drop_id,"created": datetime.now()})
+        return drop_id
 
-  def pickup(self,id):
-    cursor = self.client.drop.find({ "key" :id})
-    tmpData = []
-    for document in cursor:
-      tmpData = document
-      cursor = self.client.drop.remove({ "key" :id})
-      break
-    
-    if (tmpData):
+    def pickup(self, drop_id):
+        cursor = self.client.drop.find({"key" :drop_id})
+        tmp_data = []
+        for document in cursor:
+            tmp_data = document
+            cursor = self.client.drop.remove({"key" :id})
+            break
 
-        #handle old drops without createdDate
-        if "createdDate" in tmpData:
-            # Do not return drops > 24 hours old
-            timeDelta = datetime.now()  - tmpData["createdDate"]
+        if tmp_data:
 
-            if timeDelta.days > 1 :
-                print("too old, retunring None")
-                return []
+            #handle old drops without createdDate
+            if "createdDate" in tmp_data:
+                # Do not return drops > 24 hours old
+                time_delta = datetime.now()  - tmp_data["createdDate"]
 
-        return tmpData["data"]
+                if time_delta.days > 1:
+                    print("too old, retunring None")
+                    return []
 
-    return []
+            return tmp_data["data"]
 
-  def drop(self,data):
-    key = uniqid.uniqid()
-    self.client.drop.insert_one({ "key" :key, "data":data,"createdDate":datetime.now()})
-    return key
+        return []
+
+    def drop(self, data):
+        key = uniqid.uniqid()
+        self.client.drop.insert_one({"key" :key, "data":data, "createdDate":datetime.now()})
+        return key
 
 
 
-handler = drop_handler(MongoClient())
+HANDLER = DropHandler(MongoClient())
 
-app = Flask(__name__)
+APP = Flask(__name__)
 
 @app.route("/")
 def index():
-    ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
-    return render_template('index.htm',timedKey= handler.get_timed_key())
+    """ just return the index template"""
+    return render_template('index.htm', timedKey=handler.get_timed_key())
 
 @app.route('/images/<path:path>')
 def send_images(path):
+    """load images from drive path"""
     return send_from_directory('images', path)
 
 @app.route('/js/<path:path>')
 def send_js(path):
+    """load js from drive path"""
     return send_from_directory('js', path)
 
 @app.route('/css/<path:path>')
 def send_css(path):
+    """load css from drive path"""
     return send_from_directory('css', path)
 
 
-@app.route("/drop",methods = ['POST'])
+@app.route("/drop", methods = ['POST'])
 def drop():
     """ok, looks alright"""
     key = handler.drop(request.form["data"])
