@@ -24,7 +24,7 @@ class DropHandler:
         tmp_data = []
         for document in cursor:
             tmp_data = document
-            cursor = self.client.drop.remove({"key" :id})
+            cursor = self.client.drop.remove({"key" :drop_id})
             break
 
         if tmp_data:
@@ -53,42 +53,42 @@ HANDLER = DropHandler(MongoClient())
 
 APP = Flask(__name__)
 
-@app.route("/")
+@APP.route("/")
 def index():
     """ just return the index template"""
-    return render_template('index.htm', timedKey=handler.get_timed_key())
+    return render_template('index.htm', timedKey=HANDLER.get_timed_key())
 
-@app.route('/images/<path:path>')
+@APP.route('/images/<path:path>')
 def send_images(path):
     """load images from drive path"""
     return send_from_directory('images', path)
 
-@app.route('/js/<path:path>')
+@APP.route('/js/<path:path>')
 def send_js(path):
     """load js from drive path"""
     return send_from_directory('js', path)
 
-@app.route('/css/<path:path>')
+@APP.route('/css/<path:path>')
 def send_css(path):
     """load css from drive path"""
     return send_from_directory('css', path)
 
 
-@app.route("/drop", methods = ['POST'])
+@APP.route("/drop", methods = ['POST'])
 def drop():
     """ok, looks alright"""
-    key = handler.drop(request.form["data"])
+    key = HANDLER.drop(request.form["data"])
     return jsonify(id=key)
 
-@app.route("/pickup/<drop_id>")
+@APP.route("/pickup/<drop_id>")
 def pickup_drop_index(drop_id):
     """Load the pickup HTML"""
     return render_template('index.htm', id=drop_id)
 
 
-@app.route("/getdrop.php?id=<drop_id>")
-@app.route("/drop/<drop_id>")
+@APP.route("/getdrop.php?id=<drop_id>")
+@APP.route("/drop/<drop_id>")
 def pickup_drop_json(drop_id):
     """Actually get the drop from the DB"""
-    return_data = handler.pickup(drop_id)
+    return_data = HANDLER.pickup(drop_id)
     return  Response(return_data, mimetype='application/json')
