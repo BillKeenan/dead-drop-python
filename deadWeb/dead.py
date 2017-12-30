@@ -15,8 +15,7 @@ class DropHandler:
 
     def get_timed_key(self):
         drop_id = uniqid.uniqid()
-        
-        self.client.formKeys.insert_one({"key": drop_id,"created": datetime.now()})
+        self.client.formKeys.insert_one({"key": drop_id, "created": datetime.now()})
         return drop_id
 
     def pickup(self, drop_id):
