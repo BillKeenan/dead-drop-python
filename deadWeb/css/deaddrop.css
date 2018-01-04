@@ -165,13 +165,13 @@ pre {
 
 .input-lg {
     padding: 36px 24px;
-    font-size: 24px;
+    font-size: 15px;
     line-height: 1.4;
     border-radius: 0;
     border: 4px solid #007dc4;
 }
 
-textarea.input-lg { padding: 15px; }
+textarea.input-lg { padding: 24px; }
 
 .input-lg:focus {
     box-shadow:none;
