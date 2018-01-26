@@ -24,6 +24,7 @@ class DropHandler:
         for document in cursor:
             tmp_data = document
             cursor = self.client.drop.remove({"key" :drop_id})
+            cursor = self.client.track.update({"key" :drop_id},{"$set":{"pickedUp":datetime.now()}})
             break
 
         if tmp_data:
@@ -44,6 +45,7 @@ class DropHandler:
     def drop(self, data):
         key = uniqid.uniqid()
         self.client.drop.insert_one({"key" :key, "data":data, "createdDate":datetime.now()})
+        self.client.track.insert_one({"key" :key, "createdDate":datetime.now(),"pickedUp":None})
         return key
 
 

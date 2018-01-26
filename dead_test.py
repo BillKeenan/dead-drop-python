@@ -8,6 +8,15 @@ from freezegun import freeze_time
 
 @patch('pymongo.MongoClient')
 @freeze_time("2012-01-14")
+def test_track_is_saved(mock_pymongo):
+  dead = DropHandler(mock_pymongo)
+  data = {"test":"here"}
+  dead.drop(data)
+  mock_pymongo.dead.track.insert_one.assert_called_with({"key": ANY,"createdDate":datetime.datetime(2012, 1, 14),"pickedUp":ANY})
+
+
+@patch('pymongo.MongoClient')
+@freeze_time("2012-01-14")
 def test_drop_is_saved(mock_pymongo):
   dead = DropHandler(mock_pymongo)
   data = {"test":"here"}
@@ -26,6 +35,23 @@ def test_drop_deleted_when_accessed(mock_pymongo):
   mock_pymongo.dead.drop.find.assert_called_with({"key": sampleDrop['key']})
   mock_pymongo.dead.drop.remove.assert_called_with({"key":  sampleDrop['key']})
   assert sampleDrop["data"] == val
+
+
+
+
+
+@patch('pymongo.MongoClient')
+@freeze_time("2012-01-14")
+def test_track_updated_when_accessed(mock_pymongo):
+
+  sampleDrop = get_sample_drop()
+  mock_pymongo.dead.drop.find.return_value=[sampleDrop]
+  dead = DropHandler(mock_pymongo)
+  val = dead.pickup(sampleDrop['key'])
+  mock_pymongo.dead.track.update.assert_called_with({"key": sampleDrop['key']},{"$set":{"pickedUp":datetime.datetime(2012, 1, 14)}})
+  mock_pymongo.dead.drop.remove.assert_called_with({"key":  sampleDrop['key']})
+  assert sampleDrop["data"] == val
+
 
 
 @patch('pymongo.MongoClient')
