@@ -30,8 +30,6 @@ class DropHandler:
         cursor = self.client.track.aggregate(pipeline)
         returnData =[]
         for document in cursor:
-            import pprint
-            pprint.pprint(document)
             dt = datetime(document['_id']['year'],document['_id']['month'],document['_id']['day'])
             returnData.append([int(dt.strftime('%s'))*1000,document['count']])
         
