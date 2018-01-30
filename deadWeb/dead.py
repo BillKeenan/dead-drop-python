@@ -18,6 +18,7 @@ class DropHandler:
         self.client.formKeys.insert_one({"key": drop_id, "created": datetime.now()})
         return drop_id
 
+    
     def stats(self):
         pipeline = [
             {"$sort": {"createdDate":-1}},
@@ -33,6 +34,11 @@ class DropHandler:
             dt = datetime(document['_id']['year'],document['_id']['month'],document['_id']['day'])
             returnData.append([int(dt.strftime('%s'))*1000,document['count']])
         
+        def sort_by(a):
+            return a[0]
+
+        sorted(returnData, key=sort_by)
+
         return returnData
 
     def pickup(self, drop_id):
