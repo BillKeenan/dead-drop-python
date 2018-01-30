@@ -33,10 +33,7 @@ class DropHandler:
             import pprint
             pprint.pprint(document)
             dt = datetime(document['_id']['year'],document['_id']['month'],document['_id']['day'])
-            sec = int(dt.strftime('%s'))*1000
-
-            thisData=[sec,document['count']]
-            returnData.append(thisData)
+            returnData.append([int(dt.strftime('%s'))*1000,document['count']])
         
         return returnData
 
