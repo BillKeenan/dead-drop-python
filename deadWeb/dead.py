@@ -18,6 +18,28 @@ class DropHandler:
         self.client.formKeys.insert_one({"key": drop_id, "created": datetime.now()})
         return drop_id
 
+    def stats(self):
+        pipeline = [
+            {"$sort": {"createdDate":-1}},
+            {"$group": 
+                { "_id": { "year":{"$year":"$createdDate"},"month":{"$month":"$createdDate"},"day":{"$dayOfMonth": "$createdDate"}},"count": { "$sum": 1 } } 
+            },
+            
+        ]
+        
+        cursor = self.client.track.aggregate(pipeline)
+        returnData =[]
+        for document in cursor:
+            import pprint
+            pprint.pprint(document)
+            dt = datetime(document['_id']['year'],document['_id']['month'],document['_id']['day'])
+            sec = int(dt.strftime('%s'))*1000
+
+            thisData=[sec,document['count']]
+            returnData.append(thisData)
+        
+        return returnData
+
     def pickup(self, drop_id):
         cursor = self.client.drop.find({"key" :drop_id})
         tmp_data = []
@@ -58,6 +80,19 @@ APP = Flask(__name__)
 def index():
     """ just return the index template"""
     return render_template('index.htm', timedKey=HANDLER.get_timed_key())
+
+@APP.route("/stats")
+def statsindex():
+    """ just return the stats"""
+    return render_template('stats.htm', timedKey=HANDLER.get_timed_key())
+
+
+@APP.route("/stats/json")
+def statsjson():
+    """ just return the stats"""
+    key = HANDLER.stats()
+    return jsonify(key)
+
 
 @APP.route('/images/<path:path>')
 def send_images(path):
