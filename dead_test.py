@@ -44,7 +44,7 @@ def test_track_updated_when_accessed(mock_pymongo):
     mock_pymongo.dead.drop.find.return_value = [sampleDrop]
     dead = DropHandler(mock_pymongo)
     val = dead.pickup(sampleDrop['key'])
-    mock_pymongo.dead.track.update.assert_called_with({"key": sampleDrop['key']}, {"$set":{"pickedUp":datetime.datetime(2012, 1, 14)}})
+    mock_pymongo.dead.track.update.assert_called_with({"key": sampleDrop['key']}, {"$set":{"pickedUp":datetime.datetime(2012, 1, 14)},"$unset":{"key":""}})
     mock_pymongo.dead.drop.remove.assert_called_with({"key":  sampleDrop['key']})
     assert sampleDrop["data"] == val
 
@@ -112,6 +112,7 @@ def test_drop_deleted_and_not_returned_when_24hours_old(mock_pymongo):
   assert val == []
   mock_pymongo.dead.drop.find.assert_called_with({"key": key})
   mock_pymongo.dead.drop.remove.assert_called_with({"key": key})
+
 
 
 @patch('pymongo.MongoClient')

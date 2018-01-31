@@ -44,10 +44,12 @@ class DropHandler:
     def pickup(self, drop_id):
         cursor = self.client.drop.find({"key" :drop_id})
         tmp_data = []
+        
+
         for document in cursor:
             tmp_data = document
-            cursor = self.client.drop.remove({"key" :drop_id})
-            cursor = self.client.track.update({"key" :drop_id},{"$set":{"pickedUp":datetime.now()}})
+            self.client.drop.remove({"key" :drop_id})
+            self.client.track.update({"key" :drop_id},{"$set":{"pickedUp":datetime.now()},"$unset":{"key":""}})
             break
 
         if tmp_data:
