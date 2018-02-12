@@ -23,6 +23,25 @@ def test_drop_is_saved(mock_pymongo):
   dead.drop(data)
   mock_pymongo.dead.drop.insert_one.assert_called_with({"key": ANY, "data":data,"createdDate":datetime.datetime(2012, 1, 14)})
 
+@patch('pymongo.MongoClient')
+def test_date_sorting_for_stats(mock_pymongo):
+  sampleData = [{ "_id" : { "year" : 2018, "month" : 1, "day" : 26 }, "count" : 2 },
+{ "_id" : { "year" : 2018, "month" : 1, "day" : 28 }, "count" : 15 },
+{ "_id" : { "year" : 2018, "month" : 1, "day" : 29 }, "count" : 68 },
+{ "_id" : { "year" : 2018, "month" : 1, "day" : 27 }, "count" : 13 },
+{ "_id" : { "year" : 2018, "month" : 1, "day" : 30 }, "count" : 78 },
+{ "_id" : { "year" : 2018, "month" : 1, "day" : 31 }, "count" : 75 },
+{ "_id" : { "year" : 2018, "month" : 2, "day" : 1 }, "count" : 90 },
+{ "_id" : { "year" : 2018, "month" : 2, "day" : 2 }, "count" : 65 }]
+  mock_pymongo.dead.track.aggregate.return_value=sampleData
+  dead = DropHandler(mock_pymongo)
+  val = dead.stats()
+  max = 0
+  for e in val:
+    assert max < e[0]
+    max = e[0]
+    
+    
 
 @patch('pymongo.MongoClient')
 @freeze_time("2012-01-14")

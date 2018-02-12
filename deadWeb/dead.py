@@ -37,7 +37,7 @@ class DropHandler:
         def sort_by(a):
             return a[0]
 
-        sorted(returnData, key=sort_by)
+        returnData= sorted(returnData, key=sort_by)
 
         return returnData
 
