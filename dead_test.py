@@ -10,9 +10,10 @@ from freezegun import freeze_time
 @freeze_time("2012-01-14")
 def test_track_is_saved(mock_pymongo):
   dead = DropHandler(mock_pymongo)
+  dead.setRequestHash("127.0.0.1")
   data = {"test":"here"}
   dead.drop(data)
-  mock_pymongo.dead.track.insert_one.assert_called_with({"key": ANY,"createdDate":datetime.datetime(2012, 1, 14),"pickedUp":ANY})
+  mock_pymongo.dead.track.insert_one.assert_called_with({"key": ANY,"userHash":ANY, "createdDate":datetime.datetime(2012, 1, 14),"pickedUp":ANY})
 
 
 @patch('pymongo.MongoClient')

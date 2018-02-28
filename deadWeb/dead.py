@@ -3,12 +3,13 @@ import os
 from flask import Flask, render_template, send_from_directory, request, Response, jsonify
 from pymongo import MongoClient
 import uniqid
-
+import hashlib
 
 class DropHandler:
 
     client = None
-
+    clientHash = None
+    
     def __init__(self, db):
         self.client = db.dead
         pass
@@ -70,12 +71,17 @@ class DropHandler:
     def drop(self, data):
         key = uniqid.uniqid()
         self.client.drop.insert_one({"key" :key, "data":data, "createdDate":datetime.now()})
-        self.client.track.insert_one({"key" :key, "createdDate":datetime.now(),"pickedUp":None})
+        self.client.track.insert_one({"key" :key, "userHash": self.clientHash, "createdDate":datetime.now(),"pickedUp":None})
         return key
 
+    def setRequestHash(self,ipAddr):
+        m = hashlib.sha256()
+        m.update(ipAddr.encode('utf-8'))
+        self.clientHash = m.hexdigest()
 
 
 HANDLER = DropHandler(MongoClient())
+
 
 APP = Flask(__name__)
 
@@ -116,6 +122,7 @@ def send_css(path):
 @APP.route("/drop", methods = ['POST'])
 def drop():
     """ok, looks alright"""
+    HANDLER.setRequestHash(request.remote_addr)
     key = HANDLER.drop(request.form["data"])
     return jsonify(id=key)
 
