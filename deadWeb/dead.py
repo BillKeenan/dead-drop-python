@@ -10,6 +10,7 @@ class DropHandler:
 
     client = None
     clientHash = None
+    salt = "a6891cca-3ea1-4f56-b3a8-1d77095a088e"
     
     def __init__(self, db):
         self.client = db.dead
@@ -85,10 +86,10 @@ class DropHandler:
 
     def setRequestHash(self,ipAddr):
         # dont want people using a rainbow table to look up these ip's
-        saltedIP = "a6891cca-3ea1-4f56-b3a8-1d77095a088e"+ipAddr
+        saltedIP = self.salt +ipAddr
         m = hashlib.sha256()
         m.update(saltedIP.encode('utf-8'))
-        self.clientHash = m.hexdigest()
+        self.clientHash = m.hexdigest()[:32]
 
 
 HANDLER = DropHandler(MongoClient())

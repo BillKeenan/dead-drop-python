@@ -2,6 +2,7 @@ from unittest.mock import patch, ANY
 from deadWeb.dead import  DropHandler
 import pprint
 import datetime
+import hashlib
 from freezegun import freeze_time
 
 
@@ -14,6 +15,23 @@ def test_track_is_saved(mock_pymongo):
   data = {"test":"here"}
   dead.drop(data)
   mock_pymongo.dead.track.insert_one.assert_called_with({"key": ANY,"userHash":ANY, "createdDate":datetime.datetime(2012, 1, 14),"pickedUp":ANY})
+
+
+@patch('pymongo.MongoClient')
+@freeze_time("2012-01-14")
+def test_user_hash_is_truncated(mock_pymongo):
+  dead = DropHandler(mock_pymongo)
+  ipAddr ="127.0.0.1"
+  dead.setRequestHash(ipAddr)
+  data = {"test":"here"}
+  dead.drop(data)
+
+  saltedIP = DropHandler.salt +ipAddr
+  m = hashlib.sha256()
+  m.update(saltedIP.encode('utf-8'))
+  client_hash = m.hexdigest()[:32]
+    
+  mock_pymongo.dead.track.insert_one.assert_called_with({"key": ANY,"userHash": client_hash, "createdDate":datetime.datetime(2012, 1, 14),"pickedUp":ANY})
 
 
 @patch('pymongo.MongoClient')
