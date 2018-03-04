@@ -50,6 +50,12 @@ class DropHandler:
             countData.append([int(dt.strftime('%s'))*1000,document['count'],])
             uniqueData.append([int(dt.strftime('%s'))*1000,document['distinctCount']])
         
+        def sort_by(a):
+             return a[0]
+ 	 
+        countData= sorted(countData, key=sort_by)
+        uniqueData= sorted(uniqueData, key=sort_by)
+
         returnData.append({"label":"Drops","data":countData})
         returnData.append({"label":"Unique","data":uniqueData})
 
