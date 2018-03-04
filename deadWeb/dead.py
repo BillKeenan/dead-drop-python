@@ -43,9 +43,6 @@ class DropHandler:
         countData=[]
         uniqueData=[]
         for document in cursor:
-            import pprint
-            pp = pprint.PrettyPrinter(indent=4)
-            pp.pprint(document)
             if (document['_id'] == "1"):
                 continue
             dt = datetime(document['_id']['year'],document['_id']['month'],document['_id']['day'])
@@ -58,30 +55,28 @@ class DropHandler:
         return returnData
 
     def pickup(self, drop_id):
-        cursor = self.client.drop.find({"key" :drop_id})
-        tmp_data = []
+        document = self.client.drop.find_one({"key" :drop_id})
+
+        if (document == []):
+            return []
         
+        self.client.drop.remove({"key" :drop_id})
+        self.client.track.update({"key" :drop_id},{"$set":{"pickedUp":datetime.now()},"$unset":{"key":""}})
 
-        for document in cursor:
-            tmp_data = document
-            self.client.drop.remove({"key" :drop_id})
-            self.client.track.update({"key" :drop_id},{"$set":{"pickedUp":datetime.now()},"$unset":{"key":""}})
-            break
+        #handle old drops without createdDate
+        if "createdDate" in document:
+            # Do not return drops > 24 hours old
+            time_delta = datetime.now()  - document["createdDate"]
 
-        if tmp_data:
+            if time_delta.days > 1:
+                # "too old, returning None"
+                return []
+            else:
+                return document["data"]
+        else:
+            # no create date, no drop for you
+            return []
 
-            #handle old drops without createdDate
-            if "createdDate" in tmp_data:
-                # Do not return drops > 24 hours old
-                time_delta = datetime.now()  - tmp_data["createdDate"]
-
-                if time_delta.days > 1:
-                    print("too old, retunring None")
-                    return []
-
-            return tmp_data["data"]
-
-        return []
 
     def drop(self, data):
         key = uniqid.uniqid()
