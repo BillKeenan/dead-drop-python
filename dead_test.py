@@ -29,7 +29,7 @@ def test_drop_is_saved(mock_pymongo):
 def test_drop_deleted_when_accessed(mock_pymongo):
 
     sampleDrop = get_sample_drop()
-    mock_pymongo.dead.drop.find_one.return_value=sampleDrop
+    mock_pymongo.dead.drop.find_one_and_delete.return_value=sampleDrop
     dead = DropHandler(mock_pymongo)
     import pprint
     pprint.pprint("XXXXX")
@@ -37,8 +37,7 @@ def test_drop_deleted_when_accessed(mock_pymongo):
     val = dead.pickup(sampleDrop['key'])
     
     pprint.pprint(val)
-    mock_pymongo.dead.drop.find_one.assert_called_with({"key": sampleDrop['key']})
-    mock_pymongo.dead.drop.remove.assert_called_with({"key":  sampleDrop['key']})
+    mock_pymongo.dead.drop.find_one_and_delete.assert_called_with({"key": sampleDrop['key']})
     assert sampleDrop["data"] == val
 
 @patch('pymongo.MongoClient')
@@ -46,11 +45,10 @@ def test_drop_deleted_when_accessed(mock_pymongo):
 def test_track_updated_when_accessed(mock_pymongo):
 
     sampleDrop = get_sample_drop()
-    mock_pymongo.dead.drop.find_one.return_value = sampleDrop
+    mock_pymongo.dead.drop.find_one_and_delete.return_value = sampleDrop
     dead = DropHandler(mock_pymongo)
     val = dead.pickup(sampleDrop['key'])
     mock_pymongo.dead.track.update.assert_called_with({"key": sampleDrop['key']}, {"$set":{"pickedUp":datetime.datetime(2012, 1, 14)},"$unset":{"key":""}})
-    mock_pymongo.dead.drop.remove.assert_called_with({"key":  sampleDrop['key']})
     assert sampleDrop["data"] == val
 
 def get_sample_stats():
@@ -97,14 +95,13 @@ def test_drop_not_retruned_when_no_create_date(mock_pymongo):
   # to handle old drops
   sampleDrop = get_sample_drop()
   sampleDrop.pop('createdDate')
-  mock_pymongo.dead.drop.find_one.return_value=sampleDrop
+  mock_pymongo.dead.drop.find_one_and_delete.return_value=sampleDrop
   dead = DropHandler(mock_pymongo)
   val = dead.pickup(sampleDrop['key'])
   pprint.pprint(sampleDrop)
   pprint.pprint(val)
   
-  mock_pymongo.dead.drop.find_one.assert_called_with({"key": sampleDrop['key']})
-  mock_pymongo.dead.drop.remove.assert_called_with({"key":  sampleDrop['key']})
+  mock_pymongo.dead.drop.find_one_and_delete.assert_called_with({"key": sampleDrop['key']})
   assert val == []
 
 
@@ -125,8 +122,7 @@ def test_drop_deleted_and_not_returned_when_24hours_old(mock_pymongo):
   val = dead.pickup(key)
   
   assert val == []
-  mock_pymongo.dead.drop.find_one.assert_called_with({"key": key})
-  mock_pymongo.dead.drop.remove.assert_called_with({"key": key})
+  mock_pymongo.dead.drop.find_one_and_delete.assert_called_with({"key": key})
 
 
 
@@ -134,13 +130,12 @@ def test_drop_deleted_and_not_returned_when_24hours_old(mock_pymongo):
 def test_return_none_when_not_existing(mock_pymongo):
 
   sampleDrop = get_sample_drop()
-  mock_pymongo.dead.drop.find_one.return_value=[]
+  mock_pymongo.dead.drop.find_one_and_delete.return_value=[]
   dead = DropHandler(mock_pymongo)
   val = dead.pickup(sampleDrop['key'])
   
   assert val == []
-  mock_pymongo.dead.drop.find_one.assert_called_with({"key": sampleDrop['key']})
-  mock_pymongo.dead.drop.remove.assert_not_called()
+  mock_pymongo.dead.drop.find_one_and_delete.assert_called_with({"key": sampleDrop['key']})
 
 
 @patch('pymongo.MongoClient')

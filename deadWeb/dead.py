@@ -37,7 +37,7 @@ class DropHandler:
             {"$sort":  {"_id.year":1,"_id.month":1,"_id.day":1}},
 
         ]
-        
+
         cursor = self.client.track.aggregate(pipeline)
         returnData =[]
         countData=[]
@@ -55,12 +55,11 @@ class DropHandler:
         return returnData
 
     def pickup(self, drop_id):
-        document = self.client.drop.find_one({"key" :drop_id})
+        document = self.client.drop.find_one_and_delete({"key" :drop_id})
 
         if (document == []):
             return []
         
-        self.client.drop.remove({"key" :drop_id})
         self.client.track.update({"key" :drop_id},{"$set":{"pickedUp":datetime.now()},"$unset":{"key":""}})
 
         #handle old drops without createdDate
