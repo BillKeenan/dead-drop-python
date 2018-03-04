@@ -90,8 +90,10 @@ class DropHandler:
         return key
 
     def setRequestHash(self,ipAddr):
+        # dont want people using a rainbow table to look up these ip's
+        saltedIP = "a6891cca-3ea1-4f56-b3a8-1d77095a088e"+ipAddr
         m = hashlib.sha256()
-        m.update(ipAddr.encode('utf-8'))
+        m.update(saltedIP.encode('utf-8'))
         self.clientHash = m.hexdigest()
 
 
