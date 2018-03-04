@@ -4,6 +4,7 @@ from flask import Flask, render_template, send_from_directory, request, Response
 from pymongo import MongoClient
 import uniqid
 import hashlib
+import json
 
 class DropHandler:
 
@@ -22,23 +23,37 @@ class DropHandler:
     
     def stats(self):
         pipeline = [
-            {"$sort": {"createdDate":-1}},
             {"$group": 
-                { "_id": { "year":{"$year":"$createdDate"},"month":{"$month":"$createdDate"},"day":{"$dayOfMonth": "$createdDate"}},"count": { "$sum": 1 } } 
+            { "_id": { "year":{"$year":"$createdDate"},"month":{"$month":"$createdDate"},"day":{"$dayOfMonth": "$createdDate"},"userHash":"$userHash"},
+                "count": { "$sum": 1 },
+            }
             },
-            
+            {"$group":
+                { "_id": { "year":"$_id.year","month":"$_id.month","day":"$_id.day"},
+                "count": { "$sum": "$count" },
+                "distinctCount": { "$sum": 1 }
+                }
+            },
+            {"$sort":  {"_id.year":1,"_id.month":1,"_id.day":1}},
+
         ]
         
         cursor = self.client.track.aggregate(pipeline)
         returnData =[]
+        countData=[]
+        uniqueData=[]
         for document in cursor:
+            import pprint
+            pp = pprint.PrettyPrinter(indent=4)
+            pp.pprint(document)
+            if (document['_id'] == "1"):
+                continue
             dt = datetime(document['_id']['year'],document['_id']['month'],document['_id']['day'])
-            returnData.append([int(dt.strftime('%s'))*1000,document['count']])
+            countData.append([int(dt.strftime('%s'))*1000,document['count'],])
+            uniqueData.append([int(dt.strftime('%s'))*1000,document['distinctCount']])
         
-        def sort_by(a):
-            return a[0]
-
-        returnData= sorted(returnData, key=sort_by)
+        returnData.append({"label":"Drops","data":countData})
+        returnData.append({"label":"Unique","data":uniqueData})
 
         return returnData
 
@@ -98,9 +113,10 @@ def statsindex():
 
 @APP.route("/stats/json")
 def statsjson():
+
     """ just return the stats"""
     key = HANDLER.stats()
-    return jsonify(key)
+    return Response(json.dumps(key, indent=4, sort_keys=True), mimetype='application/json')
 
 
 @APP.route('/images/<path:path>')

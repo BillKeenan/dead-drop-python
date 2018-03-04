@@ -25,26 +25,6 @@ def test_drop_is_saved(mock_pymongo):
   mock_pymongo.dead.drop.insert_one.assert_called_with({"key": ANY, "data":data,"createdDate":datetime.datetime(2012, 1, 14)})
 
 @patch('pymongo.MongoClient')
-def test_date_sorting_for_stats(mock_pymongo):
-  sampleData = [{ "_id" : { "year" : 2018, "month" : 1, "day" : 26 }, "count" : 2 },
-{ "_id" : { "year" : 2018, "month" : 1, "day" : 28 }, "count" : 15 },
-{ "_id" : { "year" : 2018, "month" : 1, "day" : 29 }, "count" : 68 },
-{ "_id" : { "year" : 2018, "month" : 1, "day" : 27 }, "count" : 13 },
-{ "_id" : { "year" : 2018, "month" : 1, "day" : 30 }, "count" : 78 },
-{ "_id" : { "year" : 2018, "month" : 1, "day" : 31 }, "count" : 75 },
-{ "_id" : { "year" : 2018, "month" : 2, "day" : 1 }, "count" : 90 },
-{ "_id" : { "year" : 2018, "month" : 2, "day" : 2 }, "count" : 65 }]
-  mock_pymongo.dead.track.aggregate.return_value=sampleData
-  dead = DropHandler(mock_pymongo)
-  val = dead.stats()
-  max = 0
-  for e in val:
-    assert max < e[0]
-    max = e[0]
-    
-    
-
-@patch('pymongo.MongoClient')
 @freeze_time("2012-01-14")
 def test_drop_deleted_when_accessed(mock_pymongo):
 
@@ -68,29 +48,38 @@ def test_track_updated_when_accessed(mock_pymongo):
     mock_pymongo.dead.drop.remove.assert_called_with({"key":  sampleDrop['key']})
     assert sampleDrop["data"] == val
 
+def get_sample_stats():
+  samplestats =[
+      { "_id" : { "year" : 2018, "month" : 3, "day" : 2 }, "count" : 67, "distinctCount" : 49 },
+      { "_id" : { "year" : 2018, "month" : 3, "day" : 3 }, "count" : 24, "distinctCount" : 15 }
+    ]
+
+  return samplestats;
+
+
 @patch('pymongo.MongoClient')
 def test_stats_returned(mock_pymongo):
     #db.track.aggregate({ $group: { _id: { "year":{$year:"$createdDate"},"month":{$month:"$createdDate"},"day":{$dayOfMonth: "$createdDate"}},createdDate: { $sum: 1 } } })
-    samplestats =[
-      {
-        '_id':
-          {
-            'year':2018,
-            'month':1,
-            'day':10
-          },
-        'createdDate':100
-      }
-    ]
+    
 
-    mock_pymongo.dead.track.find.return_value=samplestats
+    
+
+    mock_pymongo.dead.track.find.return_value= get_sample_stats()
     dead = DropHandler(mock_pymongo)
     val = dead.stats()
     expected =[
-            {"$sort": {"createdDate":-1}},
             {"$group": 
-                { "_id": { "year":{"$year":"$createdDate"},"month":{"$month":"$createdDate"},"day":{"$dayOfMonth": "$createdDate"}},"count": { "$sum": 1 } } 
+            { "_id": { "year":{"$year":"$createdDate"},"month":{"$month":"$createdDate"},"day":{"$dayOfMonth": "$createdDate"},"userHash":"$userHash"},
+                "count": { "$sum": 1 } ,
+            } 
             },
+            {"$group": 
+                { "_id": { "year":"$_id.year","month":"$_id.month","day":"$_id.day"},
+                "count": { "$sum": "$count" },
+                "distinctCount": { "$sum": 1 }
+                } 
+            },
+            {"$sort":  {"_id.year":1,"_id.month":1,"_id.day":1}},
             
         ];
     mock_pymongo.dead.track.aggregate.assert_called_with(expected)

@@ -3,7 +3,7 @@
 # dead-drop - now with more python
 =========
 
-Live at [dead drop](https://dead-drop.me)
+Live at [dead-drop.me](https://dead-drop.me)
 
 Secure text sender, generates a 1-time link and password. stores encrypted in mongo
 
