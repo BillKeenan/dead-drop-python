@@ -170,8 +170,6 @@ function require(script) {
 
 
 $(document).ready(function () {
-    var http = location.protocol;
-    var slashes = http.concat("//");
     root = "/";
 
     if (typeof dropid != 'undefined') {
