@@ -56,8 +56,8 @@ class DropHandler:
         countData= sorted(countData, key=sort_by)
         uniqueData= sorted(uniqueData, key=sort_by)
 
-        returnData.append({"label":"Drops","data":countData})
-        returnData.append({"label":"Unique","data":uniqueData})
+        returnData.append({"label":"# of Drops","data":countData})
+        returnData.append({"label":"Unique Users","data":uniqueData})
 
         return returnData
 
