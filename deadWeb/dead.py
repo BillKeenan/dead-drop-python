@@ -1,7 +1,7 @@
 from datetime import datetime
 import os
 from flask import Flask, render_template, send_from_directory, request, Response, jsonify
-from pymongo import MongoClient
+from pymongo import MongoClient, errors
 import uniqid
 import hashlib
 import json
@@ -20,8 +20,8 @@ class DropHandler:
         drop_id = uniqid.uniqid()
         self.client.formKeys.insert_one({"key": drop_id, "created": datetime.now()})
         return drop_id
+        
 
-    
     def stats(self):
         pipeline = [
             {"$group": 
@@ -98,7 +98,7 @@ class DropHandler:
         self.clientHash = m.hexdigest()[:32]
 
 
-HANDLER = DropHandler(MongoClient())
+HANDLER = DropHandler(MongoClient(connectTimeoutMS=5000,serverSelectionTimeoutMS=5000))
 
 
 APP = Flask(__name__)
@@ -111,7 +111,7 @@ def index():
 @APP.route("/stats")
 def statsindex():
     """ just return the stats"""
-    return render_template('stats.htm', timedKey=HANDLER.get_timed_key())
+    return render_template('stats.htm')
 
 
 @APP.route("/stats/json")
@@ -157,3 +157,7 @@ def pickup_drop_json(drop_id):
     """Actually get the drop from the DB"""
     return_data = HANDLER.pickup(drop_id)
     return  Response(return_data, mimetype='application/json')
+
+@APP.errorhandler(500)
+def internal_server_error(e):
+    return render_template('error.htm'), 500
