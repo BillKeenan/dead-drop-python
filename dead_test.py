@@ -42,6 +42,11 @@ def test_drop_is_saved(mock_pymongo):
   dead.drop(data)
   mock_pymongo.dead.drop.insert_one.assert_called_with({"key": ANY, "data":data,"createdDate":datetime.datetime(2012, 1, 14)})
 
+
+def test_dummy_test():
+  assert True==True
+
+
 @patch('pymongo.MongoClient')
 @freeze_time("2012-01-14")
 def test_drop_deleted_when_accessed(mock_pymongo):
