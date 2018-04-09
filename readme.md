@@ -9,7 +9,7 @@ Secure text sender, generates a 1-time link and password. stores encrypted in mo
 
 The intention here is to be self contained, and operate all in browser to minimize attack vectors.
 
-There is a sample Apache configuration, as well as a vagrant test environemnt.
+There is a sample Apache configuration, as well as a vagrant test environment.
 
 # get going
 ==========
