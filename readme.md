@@ -28,3 +28,6 @@ There is a sample Apache configuration, as well as a vagrant test environment.
 
 This code is free to use as per the license, it would be polite to put a link to dead-drop.me in the footer however.
 
+
+For prod, i'm using UWSGI instructions here
+https://www.digitalocean.com/community/tutorials/how-to-serve-flask-applications-with-uswgi-and-nginx-on-ubuntu-18-04
