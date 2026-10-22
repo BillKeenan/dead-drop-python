@@ -3,7 +3,10 @@
 # dead-drop - now with more python
 =========
 
-Live at [dead-drop.me](https://dead-drop.me)
+Live at NOW RETIRED
+----------
+after a decade, and 100's of 1000's of messages, I feel signal, imessage, and other product fill this need. thanks everyone
+------------
 
 Secure text sender, generates a 1-time link and password. stores encrypted in mongo
 
